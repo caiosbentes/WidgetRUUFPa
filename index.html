@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>RU UFPA</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <script>
+    var globalDate = new Date().getDay();
+    var msgg;
+
+    (function () {
+
+      var remote = require('remote');
+      var BrowserWindow = remote.require('browser-window');
+
+      function init() {
+        document.getElementById("close-btn").addEventListener("click", function (e) {
+          var window = BrowserWindow.getFocusedWindow();
+          window.close();
+        });
+
+        document.getElementById("back-btn").addEventListener("click", function (e) {
+
+          (globalDate <= 0) ? globalDate = 0 : globalDate--;
+
+          var weekday = new Array(7);
+          var div = document.getElementById('data');
+          
+          
+          weekday[0] = "Domingo";
+          weekday[1] = "Segunda";
+          weekday[2] = "Terça";
+          weekday[3] = "Quarta-feira";
+          weekday[4] = "Quinta-feira";
+          weekday[5] = "Sexta";
+          weekday[6] = "Sábado";
+          
+          var html = "";
+          
+          html += "<br>Dia da semana: " + weekday[globalDate];
+          html += "<h2>Almoço</h2>"
+          msgg[getWeekDay(globalDate)].almoco.forEach((data) => {
+            html += '<li>' + data + '</li>';
+          })
+
+          html += "<h2>Jantar</h2>"
+          msgg[getWeekDay(globalDate)].jantar.forEach((data) => {
+            html += '<li>' + data + '</li>';
+          })
+
+          div.innerHTML = html;
+
+        });
+        
+        document.getElementById("next-btn").addEventListener("click", function (e) {
+
+          (globalDate >= 6) ? globalDate = 6 : globalDate++;
+
+          var weekday = new Array(7);
+          var div = document.getElementById('data');
+          
+          
+          
+          weekday[0] = "Domingo";
+          weekday[1] = "Segunda";
+          weekday[2] = "Terça";
+          weekday[3] = "Quarta-feira";
+          weekday[4] = "Quinta-feira";
+          weekday[5] = "Sexta";
+          weekday[6] = "Sábado";
+          
+          var html = "";
+          
+          html += "<br>Dia da semana: " + weekday[globalDate];
+          html += "<h2>Almoço</h2>"
+          msgg[getWeekDay(globalDate)].almoco.forEach((data) => {
+            html += '<li>' + data + '</li>';
+          })
+
+          html += "<h2>Jantar</h2>"
+          msgg[getWeekDay(globalDate)].jantar.forEach((data) => {
+            html += '<li>' + data + '</li>';
+          })
+
+          div.innerHTML = html;
+
+        });
+
+      };
+
+      document.onreadystatechange = function () {
+        if (document.readyState == "complete") {
+          init();
+        }
+      };
+
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="title-bar">
+    <div id="title">RU UFPA</div>
+    <div id="title-bar-btns">
+      <button id="back-btn">◄</button>
+      <button id="next-btn">►</button>
+      <button id="close-btn">✖</button>
+    </div>
+  </div>
+  <div id='data'>Carregando...</div>
+  <script>
+    setInterval(function () {
+      var doc = document.querySelector("iframe").contentDocument
+      if (doc) {
+        var title = doc.title
+        document.title = title
+      }
+    }, 500)
+  </script>
+
+  <script>
+    // async communication to app(=browser)
+    var ipc = require("electron").ipcRenderer;
+    var div = document.getElementById('data');
+    var d = new Date();
+
+    var weekday = new Array(7);
+    weekday[0] = "Domingo";
+    weekday[1] = "Segunda";
+    weekday[2] = "Terça";
+    weekday[3] = "Quarta-feira";
+    weekday[4] = "Quinta-feira";
+    weekday[5] = "Sexta";
+    weekday[6] = "Sábado";
+
+    ipc.on("from-server", function (event, msg) {
+      msgg = msg;
+      var html = "";
+      html += "<br>Dia da semana: " + weekday[d.getDay()];
+      html += "<h2>Almoço</h2>"
+      msg[getWeekDay(globalDate)].almoco.forEach((data) => {
+        html += '<li>' + data + '</li>';
+      })
+
+      html += "<h2>Jantar</h2>"
+      msg[getWeekDay(globalDate)].jantar.forEach((data) => {
+        html += '<li>' + data + '</li>';
+      })
+
+      div.innerHTML = html;
+    });
+
+    function getWeekDay(date) {
+      var days = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']
+      return days[date]
+    }
+  </script>
+</body>
+
+</html>
